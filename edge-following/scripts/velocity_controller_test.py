@@ -32,7 +32,7 @@ if __name__ == '__main__':
             msg.twist_angular_z = -.2
             velocity_node.pub_velocity.publish(msg)
 
-            (trans,rot) = velocity_node.listener.lookupTransform('j2s7s300_link_finger_3', 'j2s7s300_link_end_effector', rospy.Time(0))
+            # (trans,rot) = velocity_node.listener.lookupTransform('j2s7s300_link_finger_3', 'j2s7s300_link_end_effector', rospy.Time(0))
 
             try:
                 (trans,rot) = velocity_node.listener.lookupTransform('j2s7s300_link_finger_3', 'j2s7s300_link_end_effector', rospy.Time(0))
