@@ -15,7 +15,7 @@ class velocity_controller_node(object):
 
         rospy.Subscriber('/tf', tf2_msgs.msg.TFMessage, self.tf_callback, queue_size=1)
 
-        self.pub_velocity = rospy.Publisher("/j2s7s300_driver/in/cartesian_velocity", kinova_msgs.msg.PoseVelocity)
+        self.pub_velocity = rospy.Publisher("/j2s7s300_driver/in/cartesian_velocity", kinova_msgs.msg.PoseVelocity, queue_size=1)
 
         self.listener = tf.TransformListener()
 
@@ -30,14 +30,20 @@ class velocity_controller_node(object):
                     [a[2], 0, -a[0]],
                     [-a[1], a[0], 0]])
 
+        R_finger_sensor = Rotation.from_rotvec([0, 0, -20*np.pi/180]).as_matrix()
+        p_finger_sensor = np.matmul(R_finger_sensor.T, -np.array([35, 8.19, 0])/1000)
+        # p_finger_sensor = np.array([42, 8.19, 0])/1000
+
         try:
             (p, R) = velocity_node.listener.lookupTransform('root', 'j2s7s300_link_finger_tip_1', rospy.Time(0))
-
+            print(p)
         except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
             return None, None
 
         p = np.array(p)
-        R = np.array(Rotation.from_quat(R).as_dcm()) # as_matrix for python3
+        R = np.array(Rotation.from_quat(R).as_matrix()) # as_matrix for python3
+        p += p_finger_sensor
+        R = np.matmul(R, R_finger_sensor)
 
         v_goal = np.matmul(R, np.array([v]).T)
         w_goal = np.array([[0.0, 0.0, 0.0]]).T
@@ -49,7 +55,9 @@ class velocity_controller_node(object):
             return None, None
 
         p = np.array(p)
-        R = np.array(Rotation.from_quat(R).as_dcm()) # as_matrix for python3
+        R = np.array(Rotation.from_quat(R).as_matrix()) # as_matrix for python3
+        p += p_finger_sensor
+        R = np.matmul(R, R_finger_sensor)
 
         v_goal += np.matmul(np.matmul(screw(p),R), np.array([w]).T)
 
@@ -64,7 +72,7 @@ if __name__ == '__main__':
     try:
         rospy.init_node('velocity_controller', anonymous=True)
         velocity_node = velocity_controller_node()
-        rate = rospy.Rate(20) # 100hz is required by the Kinva Arm
+        rate = rospy.Rate(100) # 100hz is required by the Kinva Arm
 
         counter = 0
 
@@ -73,17 +81,60 @@ if __name__ == '__main__':
             msg = kinova_msgs.msg.PoseVelocity()
 
 
+            # if counter < 100:
+
+            #     v_goal, w_goal = velocity_node.transform_velocity([0.2,0,0], [0,0,0])
+
+            # elif counter < 200:
+
+            #     v_goal, w_goal = velocity_node.transform_velocity([-0.2,0,0], [0,0,0])
+
+            # elif counter < 300:
+
+            #     v_goal, w_goal = velocity_node.transform_velocity([0,0.2,0], [0,0,0])
+
+            # elif counter < 400:
+
+            #     v_goal, w_goal = velocity_node.transform_velocity([0,-0.2,0], [0,0,0])
+
+            # elif counter < 500:
+
+            #     v_goal, w_goal = velocity_node.transform_velocity([0,0,0.2], [0,0,0])
+
+            # elif counter < 600:
+
+            #     v_goal, w_goal = velocity_node.transform_velocity([0,0,-0.2], [0,0,0])
+
+            # else: 
+            #     counter = 0
+            #     continue 
+
+            # if v_goal is None:
+            #     continue 
+
             if counter < 100:
 
-                v_goal, w_goal = velocity_node.transform_velocity([0,0,0], [0,0.5,0])
-                # v_goal = np.array([[0,0,0]]).T
-                # w_goal = np.array([[0,0.5,0]]).T
+                v_goal, w_goal = velocity_node.transform_velocity([0,0,0], [0.2,0,0])
 
             elif counter < 200:
 
-                v_goal, w_goal = velocity_node.transform_velocity([0, 0,0], [0,-0.5,0])
-                # v_goal = np.array([[0,0,0]]).T
-                # w_goal = np.array([[0,-0.5,0]]).T
+                v_goal, w_goal = velocity_node.transform_velocity([0, 0,0], [-0.2,0,0])
+
+            elif counter < 300:
+
+                v_goal, w_goal = velocity_node.transform_velocity([0,0,0], [0,0.2,0])
+
+            elif counter < 400:
+
+                v_goal, w_goal = velocity_node.transform_velocity([0, 0,0], [0,-0.2,0])
+
+            elif counter < 500:
+
+                v_goal, w_goal = velocity_node.transform_velocity([0,0,0], [0,0,0.2])
+
+            elif counter < 600:
+
+                v_goal, w_goal = velocity_node.transform_velocity([0, 0,0], [0,0,-0.2])
 
             else: 
                 counter = 0
