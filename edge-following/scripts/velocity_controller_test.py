@@ -35,7 +35,7 @@ class velocity_controller_node(object):
         # p_finger_sensor = np.array([42, 8.19, 0])/1000
 
         try:
-            (p, R) = velocity_node.listener.lookupTransform('root', 'j2s7s300_link_finger_tip_1', rospy.Time(0))
+            (p, R) = self.listener.lookupTransform('root', 'j2s7s300_link_finger_tip_1', rospy.Time(0))
             print(p)
         except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
             return None, None
@@ -49,7 +49,7 @@ class velocity_controller_node(object):
         w_goal = np.array([[0.0, 0.0, 0.0]]).T
 
         try:
-            (p, R) = velocity_node.listener.lookupTransform('j2s7s300_end_effector', 'j2s7s300_link_finger_tip_1', rospy.Time(0))
+            (p, R) = self.listener.lookupTransform('j2s7s300_end_effector', 'j2s7s300_link_finger_tip_1', rospy.Time(0))
 
         except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
             return None, None

@@ -25,9 +25,16 @@ class digit_node(object):
         self.digit = Digit("D00045", "Left Gripper")
         self.digit.connect()
         self.digit.set_intensity_rgb(15,15,15)
+    
+        # Change DIGIT resolution to QVGA
+        qvga_res = Digit.STREAMS["QVGA"]
+        self.digit.set_resolution(qvga_res)
 
-        self.pub_image = rospy.Publisher("/digit_data", Image)
+        # Change DIGIT FPS to 30fps
+        fps_30 = Digit.STREAMS["QVGA"]["fps"]["30fps"]
+        self.digit.set_fps(fps_30)
 
+        self.pub_image = rospy.Publisher("/digit_data/raw", Image)
 
 if __name__ == '__main__': 
     try:

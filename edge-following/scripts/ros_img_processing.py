@@ -14,8 +14,8 @@ from digit_interface.digit import Digit
 from digit_interface.digit_handler import DigitHandler
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
-from std_msgs.msg import Float64MultiArray
-from Digit import *
+from std_msgs.msg import Float32MultiArray
+from digit_processing_fn import *
 from std_msgs.msg import MultiArrayDimension
 
 import numpy as np
@@ -37,21 +37,21 @@ class img_processing_node(object):
     def __init__(self):
 
         # Connect to a Digit device with serial number with friendly name
-        self.pub_image_thresh = rospy.Publisher("/digit_data/thresh", Image)
-        self.pub_image_contours = rospy.Publisher("/digit_data/contours", Image)
-        self.pub_image_force = rospy.Publisher("/digit_data_force", Float64MultiArray)
+        self.pub_image_thresh = rospy.Publisher("/digit_data/thresh", Image, queue_size=1)
+        self.pub_image_contours = rospy.Publisher("/digit_data/contours", Image, queue_size=1)
+        self.pub_image_force = rospy.Publisher("/digit_data/force", Float32MultiArray)
 
         self.bridge = CvBridge()
         self.last_img = None
 
-        rospy.Subscriber("/digit_data", Image, self.img_callback)
+        rospy.Subscriber("/digit_data/raw", Image, self.img_callback)
 
     def img_callback(self, msg):
         self.last_img = self.bridge.imgmsg_to_cv2(msg, "bgr8")
 
     def numpy_to_multiarray(self, np_array):
         # print()
-        multiarray = Float64MultiArray()
+        multiarray = Float32MultiArray()
         multiarray.layout.dim = [MultiArrayDimension('dim%d' % i,
                                                      np_array.shape[i],
                                                      np_array.shape[i] * np_array.dtype.itemsize) for i in range(np_array.ndim)];

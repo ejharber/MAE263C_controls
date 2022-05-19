@@ -67,11 +67,11 @@ def process_image(image):
     for i in range(ylen):
         for j in range(xlen):
             # each square equal to area of contours divided by area of section times some augmentation factor
-            normalized_areas[i, j] = ((sections[i, j] / section_areas[i, j]) * 255) * aug
-            visual[i * ext:((i + 1) * ext), j * ext:((j + 1) * ext)] = np.around(normalized_areas[i, j])
+            normalized_areas[i, j] = ((sections[i, j] / section_areas[i, j]) * 255)
+            visual[i * ext:((i + 1) * ext), j * ext:((j + 1) * ext)] = np.around(normalized_areas[i, j]) * aug
 
     # return thresholded image, image with contours drawn on it, "force" visual, and the normalized areas that make the
-    #                                                                                     "force" visual
+    # "force" visual
     return thresh, clone, visual, normalized_areas
 
 

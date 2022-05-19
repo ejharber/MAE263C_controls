@@ -1,0 +1,7 @@
+<launch>
+
+  <node pkg="edge-following" name="digit_ros_interface" type="digit_ros_interface.py" output="screen"/>
+
+  <node pkg="edge-following" name="ros_img_processing" type="ros_img_processing.py" output="screen"/>
+
+</launch>
