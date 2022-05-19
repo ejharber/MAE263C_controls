@@ -81,60 +81,29 @@ if __name__ == '__main__':
             msg = kinova_msgs.msg.PoseVelocity()
 
 
-            # if counter < 100:
-
-            #     v_goal, w_goal = velocity_node.transform_velocity([0.2,0,0], [0,0,0])
-
-            # elif counter < 200:
-
-            #     v_goal, w_goal = velocity_node.transform_velocity([-0.2,0,0], [0,0,0])
-
-            # elif counter < 300:
-
-            #     v_goal, w_goal = velocity_node.transform_velocity([0,0.2,0], [0,0,0])
-
-            # elif counter < 400:
-
-            #     v_goal, w_goal = velocity_node.transform_velocity([0,-0.2,0], [0,0,0])
-
-            # elif counter < 500:
-
-            #     v_goal, w_goal = velocity_node.transform_velocity([0,0,0.2], [0,0,0])
-
-            # elif counter < 600:
-
-            #     v_goal, w_goal = velocity_node.transform_velocity([0,0,-0.2], [0,0,0])
-
-            # else: 
-            #     counter = 0
-            #     continue 
-
-            # if v_goal is None:
-            #     continue 
-
             if counter < 100:
 
-                v_goal, w_goal = velocity_node.transform_velocity([0,0,0], [0.2,0,0])
+                v_goal, w_goal = velocity_node.transform_velocity([0.1,0,0], [0,0,0])
 
             elif counter < 200:
 
-                v_goal, w_goal = velocity_node.transform_velocity([0, 0,0], [-0.2,0,0])
+                v_goal, w_goal = velocity_node.transform_velocity([-0.1,0,0], [0,0,0])
 
             elif counter < 300:
 
-                v_goal, w_goal = velocity_node.transform_velocity([0,0,0], [0,0.2,0])
+                v_goal, w_goal = velocity_node.transform_velocity([0,0.1,0], [0,0,0])
 
             elif counter < 400:
 
-                v_goal, w_goal = velocity_node.transform_velocity([0, 0,0], [0,-0.2,0])
+                v_goal, w_goal = velocity_node.transform_velocity([0,-0.1,0], [0,0,0])
 
             elif counter < 500:
 
-                v_goal, w_goal = velocity_node.transform_velocity([0,0,0], [0,0,0.2])
+                v_goal, w_goal = velocity_node.transform_velocity([0,0,0.1], [0,0,0])
 
             elif counter < 600:
 
-                v_goal, w_goal = velocity_node.transform_velocity([0, 0,0], [0,0,-0.2])
+                v_goal, w_goal = velocity_node.transform_velocity([0,0,-0.1], [0,0,0])
 
             else: 
                 counter = 0
@@ -142,6 +111,37 @@ if __name__ == '__main__':
 
             if v_goal is None:
                 continue 
+
+            # if counter < 100:
+
+            #     v_goal, w_goal = velocity_node.transform_velocity([0,0,0], [0.2,0,0])
+
+            # elif counter < 200:
+
+            #     v_goal, w_goal = velocity_node.transform_velocity([0, 0,0], [-0.2,0,0])
+
+            # elif counter < 300:
+
+            #     v_goal, w_goal = velocity_node.transform_velocity([0,0,0], [0,0.2,0])
+
+            # elif counter < 400:
+
+            #     v_goal, w_goal = velocity_node.transform_velocity([0, 0,0], [0,-0.2,0])
+
+            # elif counter < 500:
+
+            #     v_goal, w_goal = velocity_node.transform_velocity([0,0,0], [0,0,0.2])
+
+            # elif counter < 600:
+
+            #     v_goal, w_goal = velocity_node.transform_velocity([0, 0,0], [0,0,-0.2])
+
+            # else: 
+            #     counter = 0
+            #     continue 
+
+            # if v_goal is None:
+            #     continue 
 
             msg.twist_linear_x = v_goal[0,0]
             msg.twist_linear_y = v_goal[1,0]        

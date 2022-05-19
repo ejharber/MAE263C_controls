@@ -19,7 +19,16 @@ print("Connected DIGIT's to Host:")
 pprint.pprint(digits)
 
 # Connect to a Digit device with serial number with friendly name
-digit = Digit("D00045", "Left Gripper")
+digit = Digit("D00023", "Left Gripper")
 digit.connect()
-digit.set_intensity_rgb(15,15,15)
+
+intensities = [(15, 0, 0), (0, 15, 0), (0, 0, 15)]
+
+# for i in intensities:
+# 	digit.set_intensity_rgb(*i)
+# 	time.sleep(1)
+
+digit.set_intensity_rgb(15, 0, 15)
+
+print(digit.info())
 digit.show_view()
