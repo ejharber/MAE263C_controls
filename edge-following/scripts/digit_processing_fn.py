@@ -32,7 +32,7 @@ def process_image(image):
     # loop over the contours and collect the areas (also draw the contours onto the image copy)
     imx = len(gray[1, :])
     imy = len(gray[:, 1])
-    print(imx, imy)
+    # print(imx, imy)
     areas = np.zeros((imy, imx))
     for (i, c) in enumerate(cnts):
         # compute the area and the perimeter of the contour
@@ -52,6 +52,7 @@ def process_image(image):
     # section divisions
     x = [0, 80, 160, imx]
     y = [0, 101-crop_length, 214-crop_length, imy]
+    print(y)
     # y = [0, 101, 214, imy]
     xlen = len(x) - 1
     ylen = len(y) - 1
@@ -70,17 +71,16 @@ def process_image(image):
     # print(section_areas)
 
     # display the normalized area that the contours take up in each section
-    # ext = 80  # size of the square that will represent each section
     aug = 10  # augmentation factor (since normalized area is relatively small)
     visual = np.ones((imy, imx, 1), dtype=np.uint8)  # image array
+    
     normalized_areas = np.zeros((ylen, xlen))
     for i in range(ylen):
         for j in range(xlen):
             # each square equal to area of contours divided by area of section times some augmentation factor
             normalized_areas[i, j] = sections[i, j] / section_areas[i, j]
             temp = (1-normalized_areas[i, j]) * 255 * aug
-            # visual[i * ext:((i + 1) * ext), j * ext:((j + 1) * ext)] = temp
-            visual[y[i]:y[i+1], x[j]:x[j+1]] = temp
+            visual[y[i]:y[i+1], x[j]:x[j+1],0] = temp
     # print(normalized_areas)
 
     # return thresholded image, image with contours drawn on it, "force" visual, and the normalized areas that make the
