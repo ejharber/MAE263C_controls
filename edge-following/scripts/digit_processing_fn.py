@@ -70,7 +70,7 @@ def process_image(image):
     # print(section_areas)
 
     # display the normalized area that the contours take up in each section
-    ext = 80  # size of the square that will represent each section
+    # ext = 80  # size of the square that will represent each section
     aug = 10  # augmentation factor (since normalized area is relatively small)
     visual = np.ones((ylen * ext, xlen * ext, 1), dtype=np.uint8)  # image array
     normalized_areas = np.zeros((ylen, xlen))
@@ -79,7 +79,8 @@ def process_image(image):
             # each square equal to area of contours divided by area of section times some augmentation factor
             normalized_areas[i, j] = sections[i, j] / section_areas[i, j]
             temp = (1-normalized_areas[i, j]) * 255 * aug
-            visual[i * ext:((i + 1) * ext), j * ext:((j + 1) * ext)] = temp
+            # visual[i * ext:((i + 1) * ext), j * ext:((j + 1) * ext)] = temp
+            visual[y[i]:y[i+1], x[j]:x[j+1]] = temp
     # print(normalized_areas)
 
     # return thresholded image, image with contours drawn on it, "force" visual, and the normalized areas that make the
