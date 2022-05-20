@@ -72,7 +72,7 @@ def process_image(image):
     # display the normalized area that the contours take up in each section
     # ext = 80  # size of the square that will represent each section
     aug = 10  # augmentation factor (since normalized area is relatively small)
-    visual = np.ones((ylen * ext, xlen * ext, 1), dtype=np.uint8)  # image array
+    visual = np.ones((imy, imx, 1), dtype=np.uint8)  # image array
     normalized_areas = np.zeros((ylen, xlen))
     for i in range(ylen):
         for j in range(xlen):
