@@ -6,14 +6,22 @@ import numpy as np
 
 def process_image(image):
     # convert image to grayscale, and blur it slightly
+    crop_length = 25
+    image = image.copy()[crop_length:, :, :]
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    # gray = gray.copy()[25:, :]
     # (image, kernel size, standard deviation of gaussian distribution (0 means it's calculated by the function))
-    blurred = cv2.GaussianBlur(gray, (15, 15), 0)
+    # blurred = cv2.GaussianBlur(gray, (5, 5), 0)
+    blurred = cv2.blur(gray, (5,5))  # average blur instead
 
     # Threshold the image
     # (image, output threshold value, adaptive threshold method, threshold method, subregion pixel size, offset)
     # alternate adaptive threshold method: cv2.ADAPTIVE_THRESH_MEAN_C
-    thresh = cv2.adaptiveThreshold(blurred, 100, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 29, 6.5)
+    thresh = cv2.adaptiveThreshold(blurred, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 29, 6.5)
+    # further process the image with an opening to remove artifacts
+    # kernelSize = (3, 3)
+    # kernel = cv2.getStructuringElement(cv2.MORPH_RECT, kernelSize)
+    # thresh = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel)
 
     # find external contours in the image
     cnts = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
@@ -24,6 +32,7 @@ def process_image(image):
     # loop over the contours and collect the areas (also draw the contours onto the image copy)
     imx = len(gray[1, :])
     imy = len(gray[:, 1])
+    print(imx, imy)
     areas = np.zeros((imy, imx))
     for (i, c) in enumerate(cnts):
         # compute the area and the perimeter of the contour
@@ -41,8 +50,9 @@ def process_image(image):
 
     # calculate the total contour areas of each defined section of the image
     # section divisions
-    x = [0, 80, 160, 240]
-    y = [0, 101, 214, 320]
+    x = [0, 80, 160, imx]
+    y = [0, 101-crop_length, 214-crop_length, imy]
+    # y = [0, 101, 214, imy]
     xlen = len(x) - 1
     ylen = len(y) - 1
     sections = np.zeros((ylen, xlen))
@@ -56,22 +66,25 @@ def process_image(image):
             sections[i, j] = sum(sum(areas[y[i]:y[i + 1], x[j]:x[j + 1]]))
 
     # debugging code
-    print(sections)
-    print(section_areas)
+    # print(sections)
+    # print(section_areas)
 
     # display the normalized area that the contours take up in each section
-    ext = 400  # size of the square that will represent each section
+    ext = 80  # size of the square that will represent each section
     aug = 10  # augmentation factor (since normalized area is relatively small)
     visual = np.ones((ylen * ext, xlen * ext, 1), dtype=np.uint8)  # image array
     normalized_areas = np.zeros((ylen, xlen))
     for i in range(ylen):
         for j in range(xlen):
             # each square equal to area of contours divided by area of section times some augmentation factor
-            normalized_areas[i, j] = ((sections[i, j] / section_areas[i, j]) * 255)
-            visual[i * ext:((i + 1) * ext), j * ext:((j + 1) * ext)] = np.around(normalized_areas[i, j]) * aug
+            normalized_areas[i, j] = sections[i, j] / section_areas[i, j]
+            temp = (1-normalized_areas[i, j]) * 255 * aug
+            visual[i * ext:((i + 1) * ext), j * ext:((j + 1) * ext)] = temp
+    # print(normalized_areas)
 
     # return thresholded image, image with contours drawn on it, "force" visual, and the normalized areas that make the
     # "force" visual
+    thresh = 255 - thresh
     return thresh, clone, visual, normalized_areas
 
 

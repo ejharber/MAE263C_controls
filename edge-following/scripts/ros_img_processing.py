@@ -38,6 +38,7 @@ class img_processing_node(object):
 
         # Connect to a Digit device with serial number with friendly name
         self.pub_image_thresh = rospy.Publisher("/digit_data/thresh", Image, queue_size=1)
+        self.pub_image_visual = rospy.Publisher("/digit_data/visual", Image, queue_size=1)
         self.pub_image_contours = rospy.Publisher("/digit_data/contours", Image, queue_size=1)
         self.pub_image_force = rospy.Publisher("/digit_data/force", Float32MultiArray)
 
@@ -68,10 +69,12 @@ if __name__ == '__main__':
             if img_processing_node.last_img is not None:
                 thresh, contours, visual, normalized_areas = process_image(img_processing_node.last_img)
                 thresh_msg = img_processing_node.bridge.cv2_to_imgmsg(thresh)
-                contours_msg = img_processing_node.bridge.cv2_to_imgmsg(visual)
+                visual_msg = img_processing_node.bridge.cv2_to_imgmsg(visual)
+                contours_msg = img_processing_node.bridge.cv2_to_imgmsg(contours, encoding="rgb8")
                 # thresh_msg = bridge.cv2_to_imgmsg(thresh, encoding="rgb8") 
 
                 img_processing_node.pub_image_thresh.publish(thresh_msg)
+                img_processing_node.pub_image_visual.publish(visual_msg) 
                 img_processing_node.pub_image_contours.publish(contours_msg)               
                 img_processing_node.pub_image_force.publish(img_processing_node.numpy_to_multiarray(np.array(normalized_areas).flatten()))
 
