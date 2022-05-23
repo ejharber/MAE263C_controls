@@ -21,6 +21,8 @@ Connecting to the robot arm is established through the serial port and
 
 `roslaunch edge-following robot.launch`
 
+(Remember to run 'source devel/setup.bash' in catkin_ws first)
+
 For viewing the link frames and robot arm in rviz run:
 
 `rviz -d rviz_setup.rviz `
@@ -31,7 +33,7 @@ The DIGIT sensor code relies on the
 
 To run the ROS connection to stream the digit data over ROS run
 
-`roslaunch edge_following digit.launch`
+`roslaunch edge-following digit.launch`
 
 To view the different data streams:
 
