@@ -3,14 +3,13 @@
 This is a repository 
 
 To clone this repository:
-`git clone https://github.com/biorobotics/matlab_SEA.git`
+`git clone --recurse-submodules https://github.com/ejharber/MAE263C_controls.git`
 
 Currently this repository contains:
 
-* Plotting Tools
-* Snake Pose Estimation (Complimentary Filter)
-* Arm Control
-
+* Velocity Controller of a Kinova arm
+* Image Processing of Digit images to estimate force
+* Hybrid force-velocity controller using the digit sensor and the kinova arm
 
 # Kinova Arm
 
@@ -34,20 +33,12 @@ To run the ROS connection to stream the digit data over ROS run
 
 `roslaunch edge_following digit.launch`
 
-To view the current DIGIT data live run:
+To view the different data streams:
 
-`rqt_image_view`
+`rqt --perspective-file rqt_plot.perspective`
 
-and select the "\digit_data\raw" topic
+# Hybrid Force-Velocity Controller
 
-To view the contour images:
+The hybrid force-velocity controller can be run through:
 
-`rqt_image_view`
-
-and select the "\digit_data\contours" topic
-
-To view the plots of the contour images over time:
-
-`rqt_plot`
-
-and select the "\digit_data\contours" topic
+`rosrun edge-following velocity_force_controler.py`
