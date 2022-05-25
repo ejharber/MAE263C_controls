@@ -6,7 +6,7 @@ import numpy as np
 
 def process_image(image):
     # convert image to grayscale, and blur it slightly
-    crop_length = 25
+    crop_length = 30
     image = image.copy()[crop_length:, :, :]
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     # gray = gray.copy()[25:, :]
@@ -50,9 +50,11 @@ def process_image(image):
 
     # calculate the total contour areas of each defined section of the image
     # section divisions
-    x = [0, 80, 160, imx]
+    xcrop = 10
+    x = [0, 80-xcrop, 160-xcrop, imx-xcrop]
     y = [0, 101-crop_length, 214-crop_length, imy]
-    print(y)
+    # prin(x)
+    # print(y)
     # y = [0, 101, 214, imy]
     xlen = len(x) - 1
     ylen = len(y) - 1
@@ -86,7 +88,17 @@ def process_image(image):
     # return thresholded image, image with contours drawn on it, "force" visual, and the normalized areas that make the
     # "force" visual
     thresh = 255 - thresh
-    return thresh, clone, visual, normalized_areas
+    color = 0
+    thickness = 1
+    thresh = cv2.line(thresh, (x[1], y[0]), (x[1], y[ylen]), color, thickness)
+    thresh = cv2.line(thresh, (x[2], y[0]), (x[2], y[ylen]), color, thickness)
+    thresh = cv2.line(thresh, (x[3], y[0]), (x[3], y[ylen]), color, thickness)
+    thresh = cv2.line(thresh, (x[0], y[1]), (x[xlen], y[1]), color, thickness)
+    thresh = cv2.line(thresh, (x[0], y[2]), (x[xlen], y[2]), color, thickness)
+    thresh = cv2.line(thresh, (x[0], y[3]), (x[xlen], y[3]), color, thickness)
+    force = normalized_areas*255
+    print(force)
+    return thresh, clone, visual, force
 
 
 def main():
