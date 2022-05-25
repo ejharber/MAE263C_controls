@@ -5,6 +5,7 @@ import roslib
 import rospy
 from robot_velocity_cmds import *
 from std_msgs.msg import Float32MultiArray
+from geometry_msgs.msg import Vector3
 
 class force_velocity_controller_node(velocity_controller_node):
     """force controller which inherits from the velocyt controller"""
@@ -12,14 +13,15 @@ class force_velocity_controller_node(velocity_controller_node):
         super().__init__()
 
         # set up substriber to listen to the previous force values
-        rospy.Subscriber('/digit_data/force', Float32MultiArray, self.force_callback, queue_size=1)
+        # rospy.Subscriber('/digit_data/force', Float32MultiArray, self.force_callback, queue_size=1)
+        rospy.Subscriber('/digit_data/force2', Vector3, self.force2_callback, queue_size=1)
 
         # previous force estimate
         self.forces = None
 
         # objects associated with the moving average
         # averages the lat 15 force estimates
-        self.moving_avg_history = np.zeros((9, 15))
+        self.moving_avg_history = np.zeros(5)
         self.moving_avg_i = 0
         self.moving_avg = None
 
@@ -27,14 +29,23 @@ class force_velocity_controller_node(velocity_controller_node):
         # convert a ros list msg to a numpy array 
         return np.array(multiarray.data, np.float32).reshape(9).astype(np.float64)
 
-    def force_callback(self, msg):
+    # def force_callback(self, msg):
+    #     # save previous force values
+    #     self.forces = self.multiarray_to_numpy(msg)
+
+    #     # moving average of previous force values 
+    #     self.moving_avg_history[:, self.moving_avg_i] = self.forces
+    #     self.moving_avg_i = (self.moving_avg_i + 1) % self.moving_avg_history.shape[1]
+    #     self.moving_avg = np.mean(self.moving_avg_history, 1)
+
+    def force2_callback(self, msg):
         # save previous force values
-        self.forces = self.multiarray_to_numpy(msg)
+        self.forces = msg.x
 
         # moving average of previous force values 
-        self.moving_avg_history[:, self.moving_avg_i] = self.forces
-        self.moving_avg_i = (self.moving_avg_i + 1) % self.moving_avg_history.shape[1]
-        self.moving_avg = np.mean(self.moving_avg_history, 1)
+        self.moving_avg_history[self.moving_avg_i] = self.forces
+        self.moving_avg_i = (self.moving_avg_i + 1) % 5
+        self.moving_avg = np.mean(self.moving_avg_history)
 
 if __name__ == '__main__': 
     try:
@@ -46,21 +57,21 @@ if __name__ == '__main__':
 
         # zero sensor 
         n = 40
-        history = np.zeros((n, 9))
+        history = np.zeros(n)
         for i in range(n):
-            history[i, :] = force_velocity_controller_node.multiarray_to_numpy(rospy.wait_for_message("/digit_data/force", Float32MultiArray))
-
-        zero_sensor = np.mean(history, 0)
+            history[i] = rospy.wait_for_message("/digit_data/force2", Vector3).x
+        zero_sensor = np.mean(history)
 
         # controller p term
         # note we could have a different p term for each 9 force estimates
-        p = 40
+        p = -.0005
 
         # ros loop 
         while not rospy.is_shutdown():
 
             # valocity set to be proportional to force estimated by digit
-            vel = p*(np.sum(force_velocity_controller_node.moving_avg - zero_sensor)) 
+            vel = p*(force_velocity_controller_node.moving_avg - zero_sensor) + 0.1
+            print(vel)
             msg = force_velocity_controller_node.transform_velocity([0,vel,0], [0,0,0])
 
             # set force value to robot

@@ -34,6 +34,7 @@ def process_image(image):
     imy = len(gray[:, 1])
     # print(imx, imy)
     areas = np.zeros((imy, imx))
+
     for (i, c) in enumerate(cnts):
         # compute the area and the perimeter of the contour
         area = cv2.contourArea(c)
@@ -97,8 +98,26 @@ def process_image(image):
     thresh = cv2.line(thresh, (x[0], y[2]), (x[xlen], y[2]), color, thickness)
     thresh = cv2.line(thresh, (x[0], y[3]), (x[xlen], y[3]), color, thickness)
     force = normalized_areas*255
-    print(force)
-    return thresh, clone, visual, force
+
+    dist_fm_center = 0
+    center_x = int((x[2] - x[1]) / 2 + x[1])
+    center_y = int((y[2] - y[1]) / 2 + y[1])
+
+    for (i, c) in enumerate(cnts):
+        # compute the area and the perimeter of the contour
+        area = cv2.contourArea(c)
+        # perimeter = cv2.arcLength(c, True)
+
+        # compute the center of the contour
+        m = cv2.moments(c)
+        cx = int(m["m10"] / (m["m00"] + 0.0000001))
+        cy = int(m["m01"] / (m["m00"] + 0.0000001))
+        areas[cy, cx] = area
+
+        if cx > x[1] and cx < x[2] and cy > y[1] and cy < y[2] and area > 40:
+            dist_fm_center += abs(cx - center_x)
+
+    return thresh, clone, visual, force, dist_fm_center, 0
 
 
 def main():
